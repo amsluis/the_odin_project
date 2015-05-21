@@ -61,6 +61,7 @@ div div {
     top: 10px;
     position: absolute;
     border-radius: 25px;
+    transform: all 0.1s ease-in; 
 }
 
 .l_arm {left: -60px;}
@@ -82,6 +83,6 @@ div div {
 }
 
 .r_arm:hover {
-    transform: rotate(7deg) translate(3px, -1px);
+    transform: rotate(-7deg) translate(-3px, -1px);
 }
 
