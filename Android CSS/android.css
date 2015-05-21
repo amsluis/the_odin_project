@@ -81,5 +81,7 @@ div div {
     transform: rotate(-5deg) translate(-4px, -8px);
 }
 
-
+.r_arm:hover {
+    transform: rotate(7deg) translate(3px, -1px);
+}
 
