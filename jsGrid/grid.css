@@ -1,0 +1,15 @@
+.box {
+    height: 30px;
+    width: 30px;
+    border: 1px solid black;
+    display: inline-block;
+	background-color: red;
+}
+
+
+.row {
+    height: 32px;
+	width: 480px;
+    margin: 0px auto 0px auto;
+	padding: 0px;
+}
