@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 # A bubble sorting algorithm
 # Accept an array and return a sorted array
 # Extend Array class to call from array object
