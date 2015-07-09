@@ -1,0 +1,4 @@
+if $0 == __FILE__
+Simialr to if __MAIN__ == __NAME__ in python, this only runs if the program
+is called directly.  This allows programs to be 'required' or 'imported'
+to use their methods without running anything that executes automatically.
