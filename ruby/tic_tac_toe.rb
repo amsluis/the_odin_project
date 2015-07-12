@@ -16,7 +16,6 @@
 #   make pair
 
 class Board
-
   def initialize
     @blank  = ['     ',
                '     ',
@@ -62,8 +61,16 @@ class Board
     @board[move] == @blank
   end
 
-  def check
-
+  def check(mark)
+    mark = {1 => @x, 2 => @o}[mark]
+    [@board[0..2].all? {|x| x == mark},
+     @board[3..5].all? {|x| x == mark},
+     @board[6..8].all? {|x| x == mark},
+     [@board[0],@board[3],@board[6]].all? {|x| x == mark},
+     [@board[1],@board[4],@board[7]].all? {|x| x == mark},
+     [@board[2],@board[5],@board[8]].all? {|x| x == mark},
+     [@board[0],@board[4],@board[8]].all? {|x| x == mark},
+     [@board[2],@board[4],@board[6]].all? {|x| x == mark}].any? {|x| x == true}
   end
 end
 
@@ -76,18 +83,17 @@ class Player
 
   def get_move(board)
     if @type == 'human'
-      puts "Enter your move (1-9)"
-      move = gets.chomp.to_i - 1
-      unless board.is_valid?(move)
-        get_move(board)
+      while true
+        puts "Enter your move (1-9)"
+        move = gets.chomp.to_i - 1
+        return move if board.is_valid?(move)
       end
-      move
     else
       get_ai_move(board)
     end
   end
 
-  def get_ai_move(board)
+  def get_ai_move(board)    # AI is pretty dumb, but perfect is no fun
     [4,0,2,6,8,1,3,5,7].each do |i|
       puts i
       return i if board.is_valid?(i)
@@ -96,21 +102,25 @@ class Player
 
 end
 
-class Game
-  attr :running, :exit
 
+
+class Game
+  attr :running, :exit, :current, :next
   def initialize
     @running = true
     @exit = false
     @player = nil
+    @current = nil
+    @next = nil
     get_player_order
+    get_players
   end
 
   def get_players
     if @player == 'first'
-      return Player.new('human', 1), Player.new('ai', 2)
+      @current, @next = Player.new('human', 1), Player.new('ai', 2)
     elsif @player == 'second'
-      return Player.new('ai', 1), Player.new('human', 2)
+      @current, @next = Player.new('ai', 1), Player.new('human', 2)
     else
       raise "no player found"
     end
@@ -118,6 +128,21 @@ class Game
 
   def make_board
     Board.new
+  end
+
+  def switch_player
+    @current, @next = @next, @current
+  end
+
+  def victory(player)
+    puts "#{player.type} wins!"
+    @running = false
+  end
+
+  def play_again?
+    puts "Would you like to play again?"
+    response = gets.chomp.downcase
+    ['yes','y','sure','yup'].any? {|word| response.include?(word)}
   end
 
   private
@@ -138,21 +163,21 @@ class Game
   end
 end
 
-Board.new.draw_board
+
 
 def main
+  Board.new.draw_board
   while true
     game = Game.new #set up game conditions
-    player1, player2 = game.get_players
     board = game.make_board
-    while game.running
-      [player1, player2].each do |player|
-        move = player.get_move(board)
-        board.make_move(move, player)
-        board.draw_board
-        board.check
-      end
+    while game.running                      #FIXME make player actually switch
+      move = game.current.get_move(board)
+      board.make_move(move, game.current)
+      board.draw_board
+      game.victory(game.current) if board.check(game.current.number)
+      game.switch_player
     end
+    break unless game.play_again?
   end
 end
 
