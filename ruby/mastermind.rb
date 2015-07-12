@@ -91,4 +91,6 @@ def main
   end
 end
 
-main
+if __FILE__ == $0
+  main()
+end
