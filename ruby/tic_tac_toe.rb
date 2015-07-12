@@ -51,22 +51,47 @@ class Board
   end
 
   def make_move(move, player)
+    if player.number == 1
+      @board[move] = @x
+    else
+      @board[move] = @o
+    end
+  end
+
+  def is_valid?(move)
+    @board[move] == @blank
+  end
+
+  def check
 
   end
 end
 
 class Player
-
-  def initialize
+  attr_reader :type, :number
+  def initialize(type, number)
+    @type = type
+    @number = number
   end
 
-  def get_move
+  def get_move(board)
+    if @type == 'human'
+      puts "Enter your move (1-9)"
+      move = gets.chomp.to_i - 1
+      unless board.is_valid?(move)
+        get_move(board)
+      end
+      move
+    else
+      get_ai_move(board)
+    end
   end
 
-  def human
-  end
-
-  def ai
+  def get_ai_move(board)
+    [4,0,2,6,8,1,3,5,7].each do |i|
+      puts i
+      return i if board.is_valid?(i)
+    end
   end
 
 end
@@ -83,12 +108,16 @@ class Game
 
   def get_players
     if @player == 'first'
-      return Player.new.human, Player.new.ai
+      return Player.new('human', 1), Player.new('ai', 2)
     elsif @player == 'second'
-      return Player.new.ai, Player.new.human
+      return Player.new('ai', 1), Player.new('human', 2)
     else
       raise "no player found"
     end
+  end
+
+  def make_board
+    Board.new
   end
 
   private
@@ -115,11 +144,12 @@ def main
   while true
     game = Game.new #set up game conditions
     player1, player2 = game.get_players
-    puts player1, player2
+    board = game.make_board
     while game.running
       [player1, player2].each do |player|
-        move = player.get_move
-        player.make_move(move)
+        move = player.get_move(board)
+        board.make_move(move, player)
+        board.draw_board
         board.check
       end
     end
