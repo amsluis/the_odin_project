@@ -1,0 +1,7 @@
+---
+- !ruby/object:Person
+  name: Norma Lou
+  age: 33
+- !ruby/object:Person
+  name: Bob Joe
+  age: 23
