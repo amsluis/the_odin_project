@@ -2,6 +2,7 @@
 # A hangman game that automatically saves and loads game progress
 # state = word used, letters guessed, guesses remaining
 require 'yaml'
+include ObjectSpace
 
 class GameState
   attr_accessor :word, :guessed, :remaining
@@ -22,7 +23,6 @@ class Game
 
   def load_or_new_game
     if File.exists?('save_game.yaml')
-      #YAML::load_file('save_game.yaml')
       File.open('save_game.yaml','r') {|f| YAML::load(f)}
     else
       new_game
@@ -93,6 +93,7 @@ class Game
 
   def end_game
     puts 'trying to delete'
+    ObjectSpace.each_object(File) {|x| p x}
     File.delete('save_game.yaml')            #FIXME - not deleting file
     @running = false
   end
@@ -103,7 +104,7 @@ class Game
       save_game
       @running = false               #TODO - check that this properly quits, breaks while loop in prompt
     end
-    response == 'exit'
+    response == 'EXIT'
   end
 
   def continue
@@ -118,8 +119,8 @@ def main
     while game.running
       game.prompt_user
       p game.state.word
-      game.display_board
-      game.update_board
+      game.display_board if game.running
+      game.update_board if game.running
     end
     break unless game.continue
   end
