@@ -2,11 +2,10 @@
 # A hangman game that automatically saves and loads game progress
 # state = word used, letters guessed, guesses remaining
 require 'yaml'
-include ObjectSpace
+
 
 class GameState
   attr_accessor :word, :guessed, :remaining
-
   def initialize
     @word = nil
     @guessed = []
@@ -14,19 +13,20 @@ class GameState
   end
 end
 
-class Game
-  attr_reader :state, :running
+
+
+class IO
   def initialize
-    @state = load_or_new_game
-    @running = true
   end
 
   def load_or_new_game
+    state = nil
     if File.exists?('save_game.yaml')
-      File.open('save_game.yaml','r') {|f| YAML::load(f)}
+      state = File.open('save_game.yaml','r') {|f| YAML::load(f)}
     else
-      new_game
+      state = new_game
     end
+    state
   end
 
   def new_game
@@ -35,14 +35,37 @@ class Game
     game
   end
 
-  def save_game
-    File.open('save_game.yaml', 'w') {|f| YAML::dump(@state, f)}
+  def get_word
+    word = File.read('5desk.txt').lines.select {|l| (5..12).cover?(l.strip.size)}.sample.strip.upcase
+    word.split('')
+  end
+
+  def save_game(state)
+    File.open('save_game.yaml', 'w') {|f| YAML::dump(state, f)}
+  end
+
+  def delete_save
+    if File.exists?('save_game.yaml')
+      File.delete('save_game.yaml')
+    end
+  end
+end
+
+
+
+class Game
+  attr_reader :state, :running
+  def initialize
+    @io = IO.new
+    @state = @io.load_or_new_game
+    @running = true
   end
 
   def prompt_user
     display_board
     while true
-      puts "You have guessed #{@state.guessed.join(',')}"
+      puts "Letters guessed: #{@state.guessed.join(',')}"
+      puts "#{@state.remaining} moves left"
       puts "Please enter your guess or type 'exit'"
       response = gets.chomp.upcase
       break if quit_game(response)
@@ -50,8 +73,11 @@ class Game
                ('A'..'Z').include?(response) and
                not @state.guessed.include? response
     end
-    @state.remaining -= 1
+    unless @state.word.any? {|letter| letter == response }
+      @state.remaining -= 1
+    end
     @state.guessed.push response
+    @state.guessed = @state.guessed.sort
     response
   end
 
@@ -68,41 +94,32 @@ class Game
   end
 
   def update_board
+    @io.save_game(@state)
     victory if @state.word.all? {|l| @state.guessed.include? l}
     game_over if @state.remaining < 1
-    save_game
-    @state.guessed.sort
-  end
-
-  def get_word
-    word = File.read('5desk.txt').lines.select {|l| (5..12).cover?(l.strip.size)}.sample.strip.upcase
-    word.split('')
   end
 
   def victory
     display_board
     puts "You won!"
-    end_game
+    @io.delete_save
+    @running = false
   end
 
   def game_over
     display_board
+    answer = @state.word.join(' ')
+    puts "The word was #{answer}"
     puts "You lose!"
-    end_game
-  end
-
-  def end_game
-    puts 'trying to delete'
-    ObjectSpace.each_object(File) {|x| p x}
-    File.delete('save_game.yaml')            #FIXME - not deleting file
+    @io.delete_save
     @running = false
   end
 
   def quit_game(response)
     if response == 'EXIT'
       puts 'exiting'
-      save_game
-      @running = false               #TODO - check that this properly quits, breaks while loop in prompt
+      @io.save_game(@state)
+      @running = false
     end
     response == 'EXIT'
   end
@@ -118,8 +135,6 @@ def main
     game = Game.new
     while game.running
       game.prompt_user
-      p game.state.word
-      game.display_board if game.running
       game.update_board if game.running
     end
     break unless game.continue
