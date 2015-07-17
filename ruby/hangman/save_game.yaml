@@ -1,0 +1,21 @@
+--- !ruby/object:GameState
+word:
+- S
+- O
+- L
+- Z
+- H
+- E
+- N
+- I
+- T
+- S
+- Y
+- N
+guessed:
+- A
+- E
+- I
+- O
+- U
+remaining: 4
