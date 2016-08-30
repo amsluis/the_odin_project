@@ -1,4 +1,3 @@
-#! /usr/bin/ruby
 # Master Mind game
 # Guess pattern of 4 pegs with 6 possible colors
 # Colored peg indicates a guess peg at the correct position and color
