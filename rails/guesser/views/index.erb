@@ -1,8 +1,20 @@
 <html>
-  <head></head>
+<head>
+  <style>
+    body {
+      <%= format %>
+     }
+  </style>
+</head>
   <body>
     <p>
-      The secret number is <%= number %>
+      <form>
+        <input type='text' name='guess' />
+        <input type='submit' value='Guess!'/>
+      </form>
+    </p>
+    <p>
+      <%= message %>
     </p>
   </body>
 </html>
