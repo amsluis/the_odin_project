@@ -11,7 +11,7 @@ end
 
 def check_guess(guess)
   guess = guess.to_i
-  if guess.nil?
+  if guess == 0
     return "Please enter a number", "background: gray;"
   elsif guess > $magic_num
     return "Guess is too high", "background: red;"
