@@ -6,7 +6,8 @@ $magic_num = rand(101)
 get '/' do
   guess = params["guess"]
   message, format= check_guess(guess)
-  erb :index, :locals => {:number => $magic_num, :message => message, :format => format}
+  #erb :index, :locals => {:number => $magic_num, :message => message, :format => format}
+  erb :kangaroo, :locals => {:penguin => $magic_num}
 end
 
 def check_guess(guess)
